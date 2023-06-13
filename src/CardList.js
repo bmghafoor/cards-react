@@ -5,6 +5,7 @@ import axios from "axios";
 const CardList = () => {
   const [deckId, setDeckId] = useState(null);
   const [cardsDrawn, setCardsDrawn] = useState([]);
+  const [buttonText, setButtonText] = useState("Start Drawing");
   const interval = useRef(null);
 
   useEffect(() => {
@@ -18,6 +19,14 @@ const CardList = () => {
   }, []);
 
   async function getCard() {
+    setButtonText((btnText) =>
+      btnText === "Start Drawing" ? "Stop Drawing" : "Start Drawing"
+    );
+
+    if (buttonText === "Stop Drawing") {
+      return clearInterval(interval.current);
+    }
+
     interval.current = setInterval(async () => {
       const res = await axios.get(
         `https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`
@@ -31,7 +40,7 @@ const CardList = () => {
           image: card.image,
         },
       ]);
-    }, 100);
+    }, 1000);
   }
 
   useEffect(() => {
@@ -47,7 +56,7 @@ const CardList = () => {
   return (
     <div>
       {cardsDrawn.length <= 51 ? (
-        <button onClick={getCard}>Start Drawing</button>
+        <button onClick={getCard}>{buttonText}</button>
       ) : (
         alert("No cards remaning")
       )}
