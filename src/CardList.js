@@ -37,7 +37,7 @@ const CardList = () => {
       {cardsDrawn.length <= 51 ? (
         <button onClick={getCard}>Draw Card</button>
       ) : (
-        ""
+        alert("No cards remaning")
       )}
       {cards}
     </div>
