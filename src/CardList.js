@@ -5,6 +5,7 @@ import axios from "axios";
 const CardList = () => {
   const [deckId, setDeckId] = useState(null);
   const [cardsDrawn, setCardsDrawn] = useState([]);
+  const interval = useRef(null);
 
   useEffect(() => {
     async function loadDeck() {
@@ -17,25 +18,36 @@ const CardList = () => {
   }, []);
 
   async function getCard() {
-    const res = await axios.get(
-      `https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`
-    );
-    const deck = res.data;
-    console.log(deck.remaining);
-    const card = deck.cards[0];
-    setCardsDrawn((deck) => [
-      ...deck,
-      {
-        image: card.image,
-      },
-    ]);
+    interval.current = setInterval(async () => {
+      const res = await axios.get(
+        `https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`
+      );
+      const deck = res.data;
+      console.log(deck.remaining);
+      const card = deck.cards[0];
+      setCardsDrawn((deck) => [
+        ...deck,
+        {
+          image: card.image,
+        },
+      ]);
+    }, 100);
   }
+
+  useEffect(() => {
+    return () => {
+      if (cardsDrawn.length === 51) {
+        clearInterval(interval.current);
+      }
+    };
+  }, [cardsDrawn]);
+
   const cards = cardsDrawn.map((card) => <Card imageUrl={card.image} />);
 
   return (
     <div>
       {cardsDrawn.length <= 51 ? (
-        <button onClick={getCard}>Draw Card</button>
+        <button onClick={getCard}>Start Drawing</button>
       ) : (
         alert("No cards remaning")
       )}
